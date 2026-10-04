@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: arendora-content-os-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arendora
+      POSTGRES_PASSWORD: arendora_dev_password
+      POSTGRES_DB: arendora_content_os
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arendora"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arendora-content-os-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://arendora:arendora_dev_password@db:5432/arendora_content_os
+      AUTH_SECRET: ${AUTH_SECRET:-change-me-in-production-0123456789}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@arendora.ru}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMeNow2026}
+    ports:
+      - "3000:3000"
+    command: sh -c "npx prisma db push && npx tsx prisma/seed.ts && npx tsx src/scheduler/main.ts & npx next start -p 3000"
+
+volumes:
+  pgdata:

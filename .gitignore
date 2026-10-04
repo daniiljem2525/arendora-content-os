@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# local env files - never commit secrets
+.env
+.env.local
+.env.*.local
+
+# local databases
+*.db
+*.db-journal
+prisma/dev.db*
+dev-server.log

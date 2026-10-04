@@ -1,0 +1,34 @@
+
+> arendora-content-os@1.0.0 dev
+> cross-env NODE_USE_ENV_PROXY=1 next dev -p 3000
+
+   ▲ Next.js 15.5.27
+   - Local:        http://localhost:3000
+   - Network:      http://172.18.0.1:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+ ○ Compiling /api/v1/health ...
+ ✓ Compiled /api/v1/health in 736ms (453 modules)
+[auto-publish] loop registered (runs every 60s when enabled in Settings)
+ GET /api/v1/health 200 in 945ms
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
+ ✓ Compiled in 128ms (195 modules)
+[auto-publish] published 3 variants
+ ✓ Compiled /api/v1/cron/publish in 333ms (452 modules)
+ GET /api/v1/cron/publish 503 in 421ms
+[auto-publish] published 3 variants
+[auto-publish] published 3 variants
