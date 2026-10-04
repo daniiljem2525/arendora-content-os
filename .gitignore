@@ -16,3 +16,6 @@ next-env.d.ts
 *.db-journal
 prisma/dev.db*
 dev-server.log
+.env.supabase
+.dbpassword.tmp
+data-export.json
