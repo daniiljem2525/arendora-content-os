@@ -1,14 +1,12 @@
-// Arendora Content OS - Prisma schema (SQLite, local development default).
-// For PostgreSQL run: npm run db:postgres  (switches to schema.postgres.prisma).
-// NOTE: SQLite does not support Prisma enums - all statuses are String columns
-// validated with Zod in src/lib/status.ts.
+// PostgreSQL variant of the schema. Applied by `npm run db:postgres`
+// (requires DATABASE_URL pointing at PostgreSQL, e.g. via docker-compose).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -23,55 +21,55 @@ model User {
 }
 
 model Platform {
-  id      String @id @default(cuid())
-  key     String @unique // tiktok | instagram | x | threads | seo
+  id      String  @id @default(cuid())
+  key     String  @unique // tiktok | instagram | x | threads | seo
   name    String
   enabled Boolean @default(true)
 }
 
 model Campaign {
-  id        String    @id @default(cuid())
+  id        String        @id @default(cuid())
   name      String
-  goal      String    @default("traffic") // traffic | registrations | activation | revenue
-  status    String    @default("active") // active | paused | completed
+  goal      String        @default("traffic")
+  status    String        @default("active")
   startDate DateTime?
   endDate   DateTime?
   notes     String?
-  createdAt DateTime  @default(now())
+  createdAt DateTime      @default(now())
   ideas     Idea[]
   content   ContentItem[]
 }
 
 model ResearchItem {
-  id           String   @id @default(cuid())
-  source       String // web_search | competitor | product | manual | keyword
-  type         String // pain_point | trend | competitor_topic | seo_opportunity | audience_question
-  title        String
-  summary      String
-  evidence     String?  @default("{}") // JSON: quotes, links, observations (never copied verbatim)
-  sourceUrl    String?
-  score        Float    @default(0)
-  status       String   @default("new") // new | used | archived
-  createdAt    DateTime @default(now())
-  ideas        Idea[]
+  id        String   @id @default(cuid())
+  source    String
+  type      String
+  title     String
+  summary   String
+  evidence  String?  @default("{}")
+  sourceUrl String?
+  score     Float    @default(0)
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+  ideas     Idea[]
 }
 
 model Idea {
-  id             String       @id @default(cuid())
+  id             String        @id @default(cuid())
   title          String
   angle          String
   researchItemId String?
   researchItem   ResearchItem? @relation(fields: [researchItemId], references: [id])
   campaignId     String?
-  campaign       Campaign?    @relation(fields: [campaignId], references: [id])
-  virality       Float        @default(0)
-  relevance      Float        @default(0)
-  differentiation Float       @default(0)
-  conversion     Float        @default(0)
-  totalScore     Float        @default(0)
-  status         String       @default("new") // new | selected | rejected | produced
+  campaign       Campaign?     @relation(fields: [campaignId], references: [id])
+  virality       Float         @default(0)
+  relevance      Float         @default(0)
+  differentiation Float        @default(0)
+  conversion     Float         @default(0)
+  totalScore     Float         @default(0)
+  status         String        @default("new")
   rationale      String?
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime      @default(now())
   contentItems   ContentItem[]
 }
 
@@ -83,7 +81,7 @@ model ContentItem {
   campaign        Campaign?       @relation(fields: [campaignId], references: [id])
   title           String
   primaryPlatform String          @default("tiktok")
-  status          String          @default("draft") // draft | ai_review | awaiting_approval | approved | published | failed | archived
+  status          String          @default("draft")
   scheduledAt     DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -91,33 +89,33 @@ model ContentItem {
 }
 
 model ContentVariant {
-  id            String      @id @default(cuid())
+  id            String        @id @default(cuid())
   contentItemId String
-  contentItem   ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
-  platform      String // tiktok | instagram | x | threads | seo
-  kind          String // tiktok_script | ig_reel | ig_carousel | x_post | x_thread | threads_post | seo_brief | video_package
-  payload       String // JSON payload produced by content/video/seo agent
-  status        String      @default("draft")
+  contentItem   ContentItem   @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  platform      String
+  kind          String
+  payload       String
+  status        String        @default("draft")
   qaScore       Float?
-  qaReport      String? // JSON QA report
-  version       Int         @default(1)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  qaReport      String?
+  version       Int           @default(1)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   publications  Publication[]
 }
 
 model Publication {
-  id          String        @id @default(cuid())
+  id          String            @id @default(cuid())
   variantId   String
-  variant     ContentVariant @relation(fields: [variantId], references: [id])
+  variant     ContentVariant    @relation(fields: [variantId], references: [id])
   platform    String
-  mode        String        @default("mock") // live | mock
-  status      String        @default("pending") // pending | published | failed | mock
+  mode        String            @default("mock")
+  status      String            @default("pending")
   externalId  String?
   externalUrl String?
   error       String?
   publishedAt DateTime?
-  createdAt   DateTime      @default(now())
+  createdAt   DateTime          @default(now())
   analytics   AnalyticsRecord[]
 }
 
@@ -147,97 +145,97 @@ model AnalyticsRecord {
 }
 
 model Experiment {
-  id          String    @id @default(cuid())
-  name        String
-  hypothesis  String
-  kind        String    @default("hook") // hook | cta | format | topic | time
-  variants    String    @default("[]") // JSON [{ key, description, contentVariantId? }]
-  status      String    @default("running") // running | completed | archived
-  startDate   DateTime  @default(now())
-  endDate     DateTime?
-  result      String? // JSON computed by learning agent
-  createdAt   DateTime  @default(now())
+  id        String    @id @default(cuid())
+  name      String
+  hypothesis String
+  kind      String    @default("hook")
+  variants  String    @default("[]")
+  status    String    @default("running")
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+  result    String?
+  createdAt DateTime  @default(now())
 }
 
 model BrandRule {
   id        String   @id @default(cuid())
-  key       String   @unique // positioning | audience | tone_of_voice | prohibited_claims | ...
+  key       String   @unique
   category  String
-  value     String // markdown / JSON document
+  value     String
   updatedAt DateTime @updatedAt
 }
 
 model ProductKnowledge {
   id        String   @id @default(cuid())
   title     String
-  category  String // feature | pricing | integration | limitation | faq
+  category  String
   body      String
   source    String?
-  verified  Boolean  @default(false) // true only for facts confirmed by the product team
+  verified  Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 
 model Keyword {
-  id         String   @id @default(cuid())
+  id         String       @id @default(cuid())
   phrase     String
-  intent     String   @default("informational") // informational | commercial | transactional | navigational
+  intent     String       @default("informational")
   cluster    String?
-  volume     Int?     // null = unknown, never fabricate
+  volume     Int?
   difficulty Int?
-  source     String   @default("manual")
-  status     String   @default("new") // new | targeting | published | rejected
-  createdAt  DateTime @default(now())
+  source     String       @default("manual")
+  status     String       @default("new")
+  createdAt  DateTime     @default(now())
   articles   SeoArticle[]
 }
 
 model SeoArticle {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   keywordId       String?
-  keyword         Keyword? @relation(fields: [keywordId], references: [id])
+  keyword         Keyword?  @relation(fields: [keywordId], references: [id])
   contentItemId   String?
   title           String
   metaDescription String
   h1              String
-  outline         String   @default("[]") // JSON outline
+  outline         String    @default("[]")
   body            String?
-  internalLinks   String   @default("[]") // JSON suggestions
-  faqSchema       String   @default("[]") // JSON FAQ
+  internalLinks   String    @default("[]")
+  faqSchema       String    @default("[]")
   cta             String?
-  status          String   @default("draft")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status          String    @default("draft")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model LearningInsight {
   id         String   @id @default(cuid())
-  kind       String // hook | topic | format | cta | time | audience
+  kind       String
   finding    String
-  evidence   String   @default("{}") // JSON supporting data
+  evidence   String   @default("{}")
   confidence Float    @default(0)
   createdAt  DateTime @default(now())
 }
 
 model IntegrationCredential {
   id        String   @id @default(cuid())
-  key       String   @unique // llm | search | instagram | threads | x | tiktok | gsc | ga4 | telegram
-  data      String // AES-256-GCM encrypted JSON of field values
+  key       String   @unique
+  data      String
   updatedAt DateTime @updatedAt
 }
 
 model AppSetting {
   id        String   @id @default(cuid())
-  key       String   @unique // auto_publish | ...
+  key       String   @unique
   value     String
   updatedAt DateTime @updatedAt
 }
 
 model StrategyPlan {
-  id          String   @id @default(cuid())
-  weekStart   String // ISO date (Monday)
-  notes       String   @default("")
-  ideaIds     String   @default("[]") // JSON array of selected idea ids
-  status      String   @default("active") // active | executed | archived
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  weekStart String
+  notes     String   @default("")
+  ideaIds   String   @default("[]")
+  status    String   @default("active")
+  createdAt DateTime @default(now())
 }
 
 model JobDefinition {
@@ -252,8 +250,8 @@ model JobDefinition {
 model JobRun {
   id         String    @id @default(cuid())
   workflow   String
-  trigger    String    @default("manual") // manual | schedule
-  status     String    @default("running") // running | success | failed
+  trigger    String    @default("manual")
+  status     String    @default("running")
   logs       String    @default("")
   error      String?
   startedAt  DateTime  @default(now())
