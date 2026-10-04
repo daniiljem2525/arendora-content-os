@@ -114,6 +114,7 @@ model Publication {
   externalId  String?
   externalUrl String?
   error       String?
+  attempts    Int               @default(0)
   publishedAt DateTime?
   createdAt   DateTime          @default(now())
   analytics   AnalyticsRecord[]

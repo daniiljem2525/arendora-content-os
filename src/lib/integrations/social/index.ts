@@ -61,13 +61,27 @@ export async function publishVariant(variantId: string): Promise<{ publicationId
     orderBy: { createdAt: "desc" },
   });
 
+  // Retry cap: stop burning API credits after MAX_PUBLISH_ATTEMPTS failures.
+  const MAX_PUBLISH_ATTEMPTS = 5;
+  if (lastFailed && lastFailed.attempts >= MAX_PUBLISH_ATTEMPTS) {
+    return {
+      publicationId: lastFailed.id,
+      status: "failed",
+      mode: lastFailed.mode,
+      error: `Превышен лимит попыток (${MAX_PUBLISH_ATTEMPTS}). Последняя ошибка: ${lastFailed.error ?? "unknown"}`,
+    };
+  }
+
   const mode = (await adapter.isConfigured()) ? "live" : "mock";
   const pub =
     lastFailed ??
     (await prisma.publication.create({
       data: { variantId: variant.id, platform: variant.platform, mode, status: "pending" },
     }));
-  await prisma.publication.update({ where: { id: pub.id }, data: { mode, status: "pending", error: null } });
+  await prisma.publication.update({
+    where: { id: pub.id },
+    data: { mode, status: "pending", error: null, attempts: { increment: 1 } },
+  });
 
   const result = await adapter.publish({ text, caption: text, mediaUrl, videoUrl });
 

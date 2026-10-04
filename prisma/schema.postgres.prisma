@@ -105,17 +105,18 @@ model ContentVariant {
 }
 
 model Publication {
-  id          String            @id @default(cuid())
+  id          String         @id @default(cuid())
   variantId   String
-  variant     ContentVariant    @relation(fields: [variantId], references: [id])
+  variant     ContentVariant @relation(fields: [variantId], references: [id])
   platform    String
-  mode        String            @default("mock")
-  status      String            @default("pending")
+  mode        String         @default("mock")
+  status      String         @default("pending")
   externalId  String?
   externalUrl String?
   error       String?
+  attempts    Int            @default(0)
   publishedAt DateTime?
-  createdAt   DateTime          @default(now())
+  createdAt   DateTime       @default(now())
   analytics   AnalyticsRecord[]
 }
 
